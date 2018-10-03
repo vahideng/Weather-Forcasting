@@ -1,28 +1,34 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-
+import _ from "lodash";
+import GoogleMap from "../components/googleMap";
 import Chart from "../components/sparklines";
 
 class WeatherList extends Component {
   renderWeather(cityData) {
     console.log(cityData, "city data");
-    const temp = cityData.list.map(weather => weather.main.temp);
+    const temp = _.map(
+      cityData.list.map(weather => weather.main.temp),
+      temp => temp - 273.15
+    );
     const pressure = cityData.list.map(weather => weather.main.pressure);
     const humid = cityData.list.map(weather => weather.main.humidity);
-
+    const { lon, lat } = cityData.city.coord;
     return (
       <tr key={cityData.city.name}>
-        <td> {cityData.city.name}</td>
+        <td>
+          <GoogleMap lat={lat} lon={lon} />
+        </td>
 
         <td>
-          <Chart data={temp} color="red" />
+          <Chart data={temp} color="red" unit="Centigrade" />
         </td>
         <td>
-          <Chart data={pressure} color="gray" />
+          <Chart data={pressure} color="gray" unit="hPa" />
         </td>
         <td>
           {" "}
-          <Chart data={humid} color="blue" />
+          <Chart data={humid} color="blue" unit="%" />
         </td>
       </tr>
     );
@@ -35,9 +41,9 @@ class WeatherList extends Component {
           <thead>
             <tr>
               <th>City</th>
-              <th>Tempreture</th>
-              <th>Pressure</th>
-              <th>Humidity</th>
+              <th>Tempreture(Centigrade)</th>
+              <th>Pressure(hPa)</th>
+              <th>Humidity(%)</th>
             </tr>
           </thead>
           <tbody>{this.props.weather.map(this.renderWeather)}</tbody>
